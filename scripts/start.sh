@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source "$PROJECT_ROOT/scripts/runtime_env.sh"
 docker compose up -d > .runtime/logs/compose-up.log 2>&1
 "$SPARK_HOME/sbin/start-history-server.sh" > .runtime/logs/history-start.log 2>&1
 .venv-airflow/bin/airflow db migrate > .runtime/logs/airflow-db.log 2>&1
@@ -9,6 +10,7 @@ chmod 600 .runtime/ui-password
 .venv-airflow/bin/airflow users create --username report --password "$LAB_UI_PASSWORD" \
  --firstname Lab --lastname Report --role Admin --email lab@example.invalid > .runtime/logs/airflow-user.log 2>&1
 nohup .venv-airflow/bin/airflow scheduler > .runtime/logs/airflow-scheduler.log 2>&1 &
+echo "$!" > .runtime/airflow-scheduler.pid
 nohup .venv-airflow/bin/airflow webserver --port 8080 > .runtime/logs/airflow-webserver.log 2>&1 &
 .venv-data/bin/python - <<'PY'
 import time, requests

@@ -13,6 +13,10 @@ response = session.post(base + '/dagRuns', json={'dag_run_id': run_id}, timeout=
 response.raise_for_status()
 previous = None
 for attempt in range(600):
+    scheduler_pid = int(Path('.runtime/airflow-scheduler.pid').read_text())
+    process = Path(f'/proc/{scheduler_pid}/stat')
+    if not process.exists() or process.read_text().rsplit(')', 1)[1].strip().split()[0] == 'Z':
+        raise SystemExit('Airflow scheduler exited unexpectedly; see airflow-scheduler.log')
     r = session.get(base + '/dagRuns/' + run_id, timeout=30)
     r.raise_for_status()
     state = r.json()['state']
