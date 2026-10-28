@@ -32,3 +32,18 @@ quả, biểu đồ, thông số model, ảnh và log, không phải một clust
 Các lần chạy thất bại/cancelled trước nghiệm thu là lịch sử phát triển:
 đã sửa đường dẫn CLI cho scheduler và các điều kiện chờ screenshot native.
 Không dùng ảnh chụp quá sớm hoặc trạng thái thử lỗi làm ảnh bàn giao cuối.
+
+## Bổ sung ảnh terminal thật
+
+[Full có terminal 40652832369](https://github.com/KieuTanPhat/california-crashes-2025-actions/actions/runs/40652832369)
+đã success trên mã 3082a07: vẫn đủ 402354 dòng và 9/9 task, thêm 10 ảnh
+terminal ttyd/xterm nối Bash PTY thật. Có 26 lệnh thực thi, tất cả exit=0;
+tổng 24 screenshot trong artifact (14 giao diện/kết quả + 10 terminal).
+Bộ unit test bổ sung đạt 17/17. Chín bảng CSV của lần chạy này được băm
+lại và khớp toàn bộ với bộ kết quả đã kiểm chứng trước đó.
+
+Các lệnh terminal là kiểm chứng sau DAG: mkdir/ls/report HDFS, upload lại
+đúng CSV và SHA256, spark-submit đọc HDFS/Parquet/chạy SQL/nạp model,
+Kafka describe/offset/consumer, Airflow CLI states. Mọi lệnh và thời điểm
+nằm trong terminal-index.json; session.typescript là transcript PTY gốc.
+Ảnh không được dựng lại từ log. Spark stderr giữ riêng trong artifact.
