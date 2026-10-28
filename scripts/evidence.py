@@ -142,11 +142,13 @@ with sync_playwright() as p:
                     fit.first.click()
                 expected_tasks = [t['task_id'] for t in airflow_tasks]
                 if expected_tasks:
-                    page.wait_for_function('''names => {
-                      const nodes = [...document.querySelectorAll('.react-flow__node')]
-                        .filter(el => el.getClientRects().length > 0);
-                      return names.every(name => nodes.some(el => el.textContent.includes(name)));
-                    }''', arg=expected_tasks, timeout=30000)
+                    for attempt in range(100):
+                        visible_labels = page.locator('.react-flow__node:visible').all_text_contents()
+                        if all(any(name in label for label in visible_labels) for name in expected_tasks):
+                            break
+                        page.wait_for_timeout(100)
+                    else:
+                        raise RuntimeError(f'Native DAG task labels incomplete: {visible_labels}')
             page.screenshot(path=str(EVIDENCE / f'airflow-{view}.png'), full_page=True)
             captures.append({'path': f'airflow-{view}.png', 'kind': 'Native live Airflow UI', 'url': url})
     except Exception as exc:
