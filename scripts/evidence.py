@@ -159,6 +159,8 @@ with sync_playwright() as p:
         failures.append({'path': 'airflow', 'error': str(exc)})
     browser.close()
 
+terminal_captures = load(EVIDENCE / 'terminal/terminal-index.json', [])
+captures.extend({'path': 'terminal/' + capture['path'], 'kind': capture['kind'], 'step': capture['step']} for capture in terminal_captures)
 (EVIDENCE / 'screenshot-index.json').write_text(json.dumps({'captures': captures, 'failures': failures}, indent=2))
 summary = f'''# California 2025 · {mode}\n\nAirflow DagRun: **{airflow_run.get('state','not completed')}**. Tasks: **{sum(t['state']=='success' for t in airflow_tasks)}/9**.\n\nBatch input: **{input_meta.get('selected_rows','unavailable')}** records. Screenshots: **{len(captures)}**.\n\nDownload the artifact and open `evidence/report.html`. Native UIs: HDFS, Spark History, Airflow Grid and Graph. RFM M = observed casualty magnitude, not money. Kafka = bounded historical replay.\n'''
 (OUT / 'results/summary.md').write_text(summary, encoding='utf-8')

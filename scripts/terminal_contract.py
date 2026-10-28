@@ -10,3 +10,6 @@ def read_exit_status(path):
 def require_success(status):
     if status != 0:
         raise RuntimeError(f'Actual terminal command did not succeed: exit={status}')
+
+def ttyd_write_options(stdout, stderr):
+    return ['--writable'] if '--writable' in stdout + stderr else []

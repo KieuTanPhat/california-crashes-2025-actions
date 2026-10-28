@@ -13,7 +13,7 @@ import subprocess
 import time
 import requests
 from playwright.sync_api import sync_playwright
-from terminal_contract import read_exit_status, require_success
+from terminal_contract import read_exit_status, require_success, ttyd_write_options
 
 ROOT = Path(os.environ['PROJECT_ROOT'])
 OUT = ROOT / 'artifacts/evidence/terminal'
@@ -30,10 +30,9 @@ bind 'set enable-bracketed-paste off'
 PROMPT_COMMAND='__lab_status=$?; printf "%s\\n" "$__lab_status" > "$LAB_EXIT_MARKER"'
 ''')
 env = dict(os.environ, LAB_EXIT_MARKER=str(marker))
-help_text = subprocess.run(['ttyd', '--help'], capture_output=True, text=True).stdout
+help_result = subprocess.run(['ttyd', '--help'], capture_output=True, text=True)
 args = ['ttyd', '-i', '127.0.0.1', '-p', '7681', '-t', 'fontSize=18', '-t', 'scrollback=3000']
-if '--writable' in help_text:
-    args.append('--writable')
+args += ttyd_write_options(help_result.stdout, help_result.stderr)
 shell_command = shlex.join(['bash', '--rcfile', str(rcfile), '-i'])
 args += ['script', '-q', '-f', '-c', shell_command, str(OUT / 'session.typescript')]
 log = (ROOT / '.runtime/logs/ttyd.log').open('w')

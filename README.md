@@ -23,6 +23,14 @@ Xem [các lần chạy và bằng chứng](docs/VERIFIED_RUNS.md).
    JSON và biểu đồ. `data-quality` chứa đối soát. `manifest` chứa commit,
    checksum, phiên bản, trạng thái DAG/tasks và chữ ký kết quả.
 
+Ảnh câu lệnh nằm trong `evidence/terminal/`: 10 screenshot từ ttyd/xterm
+nối với Bash PTY thật trên runner. Mở `evidence/terminal/index.html` để xem
+lần lượt môi trường và lệnh kiểm chứng 9 bước. Các lệnh chạy sau khi DAG
+hoàn thành, đọc trực tiếp HDFS/Kafka/model/Airflow đang hoạt động; không
+dựng lại terminal từ log. Có `terminal-index.json` ghi từng lệnh/exit code
+và `session.typescript` là transcript PTY gốc. Spark stderr được giữ ở các
+file `*-stderr.log` để ảnh kết quả dễ đọc mà không mất thông tin chẩn đoán.
+
 Artifact giữ 14 ngày; tải và lưu bản cần dùng trong báo cáo trước khi hết hạn.
 Đây là môi trường tạm thời: chạy lại sẽ dựng lại dịch vụ và dữ liệu HDFS.
 

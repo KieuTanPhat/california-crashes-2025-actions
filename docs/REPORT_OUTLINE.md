@@ -27,3 +27,12 @@
 Ghi chú mỗi ảnh: tên repo, run ID, chế độ smoke/full, thời điểm chạy và ý
 nghĩa quan sát được. Dùng ảnh full cho báo cáo chính. Không sửa screenshot
 để thay trạng thái task, số dòng, số vụ hay kết quả cụm.
+
+Ảnh lệnh bổ sung: `evidence/terminal/00-environment.png` và các ảnh 01..09
+trong cùng thư mục. Đây là terminal Linux/Bash thật, không phải Windows CMD.
+Lệnh `hdfs dfs -put -f` upload lại đúng CSV sau DAG để minh chứng thao tác;
+các lệnh spark-submit khác kiểm chứng dữ liệu/model đang có trên HDFS.
+Airflow CLI hiển thị trạng thái lần DAG đã hoàn thành. Nêu đúng vai trò
+kiểm chứng sau thực thi, không mô tả các ảnh này là chụp lúc tạo cluster
+hoặc chạy training ban đầu. Toàn bộ trạng thái và lệnh được truy vết qua
+GitHub run ID, terminal-index.json và transcript PTY.

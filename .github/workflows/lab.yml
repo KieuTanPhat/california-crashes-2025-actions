@@ -65,7 +65,7 @@ jobs:
       - name: Capture actual command-line terminal on the runner
         run: |
           sudo apt-get install -y -qq ttyd > .runtime/logs/ttyd-install.log 2>&1
-          ttyd --version > artifacts/manifest/ttyd-version.txt
+          ttyd --version > artifacts/manifest/ttyd-version.txt 2>&1
           .venv-data/bin/python scripts/capture_terminal.py
       - name: Capture authentic UIs and render report
         if: always()
