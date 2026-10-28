@@ -6,6 +6,10 @@ xử lý dữ liệu và chụp giao diện diễn ra trên GitHub-hosted Ubuntu
 Máy cá nhân chỉ cần trình duyệt. Không cần cài Docker, Hadoop, Spark hay
 Airflow trên máy cá nhân.
 
+**Đã kiểm chứng đầy đủ:** hai lần full chạy thành công, mỗi lần đủ 9/9 task
+và 14 ảnh; so sánh chín bảng kết quả PASS sau khi băm lại file tải về.
+Xem [các lần chạy và bằng chứng](docs/VERIFIED_RUNS.md).
+
 ## Chạy bằng trình duyệt
 
 1. Mở **Actions → California crash pipeline → Run workflow**.

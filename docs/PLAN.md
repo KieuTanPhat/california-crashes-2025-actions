@@ -4,13 +4,18 @@ Mục tiêu: chạy đủ HDFS, upload, PySpark, cleaning/Parquet, Spark SQL,
 RFM điều chỉnh và K-Means, lưu HDFS, Kafka Structured Streaming, Airflow DAG
 trên GitHub-hosted runner; thu screenshot thật và artifacts.
 
-- [ ] Hợp đồng dữ liệu và tests cho thiếu dữ liệu, ngày, tọa độ, đối soát.
-- [ ] Môi trường runner, nguồn CSV cố định và checksum.
-- [ ] Chạy batch đầy đủ qua HDFS và Spark.
-- [ ] RFM điều chỉnh theo địa phương và K-Means.
-- [ ] Kafka replay, Structured Streaming, đối soát event.
-- [ ] Airflow scheduler điều phối thật, screenshot UI và báo cáo.
-- [ ] Chạy smoke, full và full lần hai; kiểm chứng và bàn giao.
+- [x] Hợp đồng dữ liệu và tests cho thiếu dữ liệu, ngày, tọa độ, đối soát.
+- [x] Môi trường runner, nguồn CSV cố định và checksum.
+- [x] Chạy batch đầy đủ qua HDFS và Spark.
+- [x] RFM điều chỉnh theo địa phương và K-Means.
+- [x] Kafka replay, Structured Streaming, đối soát event.
+- [x] Airflow scheduler điều phối thật, screenshot UI và báo cáo.
+- [x] Chạy smoke, full và full lần hai; kiểm chứng và bàn giao.
+
+Đã nghiệm thu ngày 28/10/2026: smoke 40646643216; full 40648933570 và
+40648938757; kiểm chứng tái lập 40649834799 PASS. Mã thực thi được kiểm
+chứng: 0e44ed726247e38105def710e840b5ed05278b3b. Các commit bàn giao sau
+mốc này chỉ cập nhật tài liệu. Xem docs/VERIFIED_RUNS.md.
 
 Thiết kế: một runner, HDFS pseudo-distributed, Spark local[2], Kafka một
 broker. Airflow dùng SequentialExecutor/SQLite phục vụ đồ án. Dịch vụ chỉ
