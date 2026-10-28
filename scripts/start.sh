@@ -4,7 +4,6 @@ docker compose up -d > .runtime/logs/compose-up.log 2>&1
 "$SPARK_HOME/sbin/start-history-server.sh" > .runtime/logs/history-start.log 2>&1
 .venv-airflow/bin/airflow db migrate > .runtime/logs/airflow-db.log 2>&1
 LAB_UI_PASSWORD="$(python -c 'import secrets; print(secrets.token_urlsafe(24))')"
-echo "::add-mask::$LAB_UI_PASSWORD"
 printf '%s' "$LAB_UI_PASSWORD" > .runtime/ui-password
 chmod 600 .runtime/ui-password
 .venv-airflow/bin/airflow users create --username report --password "$LAB_UI_PASSWORD" \

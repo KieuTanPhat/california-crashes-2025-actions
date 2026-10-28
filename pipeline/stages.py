@@ -323,7 +323,8 @@ def verify_outputs():
         raise RuntimeError('Final input reconciliation failed')
     stream = json.loads((OUT / 'data-quality/stream-reconciliation.json').read_text())
     signatures = {name: hashlib.file_digest((OUT / 'results' / name).open('rb'), 'sha256').hexdigest()
-                  for name in ['monthly.csv', 'hourly.csv', 'weather.csv', 'rfm_clusters.csv', 'cluster_summary.csv']}
+                  for name in ['monthly.csv', 'hourly.csv', 'weekday.csv', 'weather.csv', 'collision_types.csv',
+                               'top_cities.csv', 'rfm_clusters.csv', 'cluster_summary.csv', 'stream_by_city.csv']}
     manifest = {'commit': shell('git', 'rev-parse', 'HEAD').strip(), 'run_key': os.environ['LAB_RUN_KEY'],
                 'run_url': f'https://github.com/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/{os.environ["GITHUB_RUN_ID"]}',
                 'mode': META['mode'], 'input': META, 'quality': quality, 'stream': stream, 'result_sha256': signatures,
