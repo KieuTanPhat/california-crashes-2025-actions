@@ -40,3 +40,13 @@ class TerminalStatusTests(unittest.TestCase):
             marker.write_text('not an exit code')
             with self.assertRaises(ValueError):
                 module.read_exit_status(marker)
+
+    def test_ttyd_help_on_stderr_still_enables_real_input(self):
+        module = self.load()
+        self.assertTrue(hasattr(module, 'ttyd_write_options'), 'Missing ttyd stderr help handling')
+        self.assertEqual(module.ttyd_write_options('', ' -W, --writable Allow clients to write'), ['--writable'])
+
+    def test_old_ttyd_without_writable_option_uses_default_input(self):
+        module = self.load()
+        self.assertTrue(hasattr(module, 'ttyd_write_options'), 'Missing ttyd help handling')
+        self.assertEqual(module.ttyd_write_options('old ttyd usage', ''), [])
