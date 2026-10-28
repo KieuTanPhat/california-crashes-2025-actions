@@ -121,6 +121,8 @@ with sync_playwright() as p:
         page.locator('input[type=submit],button[type=submit]').first.click()
         page.wait_for_url(lambda url: '/login' not in url, timeout=30000)
         for view in ('grid', 'graph'):
+            if view == 'graph':
+                page.set_viewport_size({'width': 1440, 'height': 1600})
             url = f'http://127.0.0.1:8080/dags/california_crashes_2025/{view}'
             page.goto(url, wait_until='domcontentloaded')
             page.get_by_text('california_crashes_2025', exact=False).first.wait_for(timeout=30000)
@@ -135,11 +137,21 @@ with sync_playwright() as p:
                         select.select_option(label=vertical)
                         page.wait_for_timeout(1000)
                         break
-                if page.locator('.react-flow__node').count() != 9:
-                    raise RuntimeError('Native Airflow graph does not show all nine task nodes')
+                fit = page.locator('.react-flow__controls-fitview:visible')
+                if fit.count():
+                    fit.first.click()
+                expected_tasks = [t['task_id'] for t in airflow_tasks]
+                if expected_tasks:
+                    page.wait_for_function('''names => {
+                      const nodes = [...document.querySelectorAll('.react-flow__node')]
+                        .filter(el => el.getClientRects().length > 0);
+                      return names.every(name => nodes.some(el => el.textContent.includes(name)));
+                    }''', arg=expected_tasks, timeout=30000)
             page.screenshot(path=str(EVIDENCE / f'airflow-{view}.png'), full_page=True)
             captures.append({'path': f'airflow-{view}.png', 'kind': 'Native live Airflow UI', 'url': url})
     except Exception as exc:
+        page.screenshot(path=str(EVIDENCE / 'airflow-capture-debug.png'), full_page=True)
+        (EVIDENCE / 'airflow-visible-nodes.json').write_text(json.dumps(page.locator('.react-flow__node:visible').all_text_contents(), indent=2))
         failures.append({'path': 'airflow', 'error': str(exc)})
     browser.close()
 
