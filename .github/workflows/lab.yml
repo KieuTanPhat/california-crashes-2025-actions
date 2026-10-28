@@ -1,0 +1,74 @@
+name: California crash pipeline
+run-name: California 2025 · ${{ inputs.mode }} · 9 stages
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'smoke = 5000 batch rows; full = all 402354 rows'
+        type: choice
+        options: [smoke, full]
+        default: smoke
+permissions:
+  contents: read
+concurrency:
+  group: crash-lab-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      LAB_MODE: ${{ inputs.mode }}
+      LAB_RUN_KEY: lab_${{ github.run_id }}_${{ github.run_attempt }}
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+      - name: Contract tests
+        run: python -m unittest discover -s tests -v
+      - name: Install pinned lab dependencies
+        run: |
+          mkdir -p .runtime/logs
+          bash scripts/install.sh > .runtime/logs/install.log 2>&1 || { tail -n 70 .runtime/logs/install.log; exit 1; }
+          tail -n 8 .runtime/logs/install.log
+      - name: Fetch and verify the original CSV
+        run: .venv-data/bin/python scripts/fetch_data.py
+      - name: Start Kafka, Spark History and real Airflow scheduler
+        run: |
+          bash scripts/start.sh > .runtime/logs/start.log 2>&1 || { tail -n 70 .runtime/logs/start.log; exit 1; }
+          tail -n 8 .runtime/logs/start.log
+      - name: Execute all nine stages through Airflow
+        run: .venv-data/bin/python scripts/run_dag.py
+      - name: Capture authentic UIs and render report
+        if: always()
+        run: |
+          if [ -x .venv-data/bin/python ]; then
+            .venv-data/bin/python scripts/evidence.py
+          fi
+      - name: Collect diagnostics
+        if: always()
+        run: |
+          mkdir -p artifacts/evidence/logs artifacts/manifest
+          cp -r .runtime/logs/. artifacts/evidence/logs/ || true
+          docker compose logs --no-color > artifacts/evidence/logs/kafka-service.log 2>&1 || true
+          if [ -d .runtime/airflow/logs ]; then cp -r .runtime/airflow/logs artifacts/evidence/logs/airflow-tasks; fi
+          if [ -d .runtime/hadoop/logs ]; then cp -r .runtime/hadoop/logs artifacts/evidence/logs/hadoop; fi
+          df -h > artifacts/manifest/disk-final.txt
+          free -m > artifacts/manifest/memory-final.txt
+          if [ -f artifacts/results/summary.md ]; then cat artifacts/results/summary.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: california-2025-${{ inputs.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          retention-days: 14
+      - name: Stop ephemeral services
+        if: always()
+        run: docker compose down || true

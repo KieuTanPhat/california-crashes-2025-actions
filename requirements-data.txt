@@ -1,0 +1,6 @@
+pyspark==3.5.5
+numpy==1.26.4
+matplotlib==3.10.1
+kafka-python==2.0.2
+playwright==1.51.0
+requests==2.32.3

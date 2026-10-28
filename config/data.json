@@ -1,0 +1,15 @@
+{
+  "url": "https://github.com/KieuTanPhat/california-crashes-2025-actions/releases/download/data-v1/crashes_2025.csv",
+  "sha256": "5ccb085b505498a8d7f28eaca619456614458f0d7b95631fbd3f4c2855083a32",
+  "bytes": 187408607,
+  "rows": 402354,
+  "columns": 74,
+  "source_family": "California Highway Patrol California Crash Reporting System (CCRS)",
+  "source_catalog": "https://data.ca.gov/@california-highway-patrol/ccrs",
+  "snapshot_origin": "CSV supplied by the project owner; not independently matched to a catalog revision",
+  "reference_date": "2025-12-31",
+  "rfm_m": "Observed injured + killed in records with both counts known; not monetary value",
+  "rfm_min_coverage": 0.95,
+  "rfm_min_crashes": 20,
+  "seed": 42
+}
