@@ -35,6 +35,9 @@ K-Means seed=42, k từ 2 đến 5 (giới hạn theo số điểm khác nhau), 
 silhouette lớn nhất, nếu bằng chọn k nhỏ hơn. Tâm cụm là trên không gian
 chuẩn hóa; tên cluster là ID tùy ý, không phải cấp độ nguy hiểm tăng dần.
 Xuất scaler và model vào HDFS, bảng đặc trưng và thông số lựa chọn k.
+Đầu vào ML được sắp xếp theo mã địa phương và gom một partition (chỉ vài
+trăm địa phương), để cùng seed không bị ảnh hưởng bởi thứ tự file Parquet
+hoặc thứ tự hash aggregation giữa các lần chạy.
 
 ## Streaming
 

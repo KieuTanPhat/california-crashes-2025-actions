@@ -200,7 +200,8 @@ def rfm_kmeans():
                    .withColumn('casualty_coverage', F.col('complete_records') / F.col('f'))
                    .withColumn('eligible', (F.col('f') >= CFG['rfm_min_crashes']) & (F.col('casualty_coverage') >= CFG['rfm_min_coverage'])))
         eligible = (grouped.filter('eligible').withColumn('r_value', F.col('r').cast('double'))
-                    .withColumn('log_f', F.log1p('f')).withColumn('log_m', F.log1p('m_observed')))
+                    .withColumn('log_f', F.log1p('f')).withColumn('log_m', F.log1p('m_observed'))
+                    .orderBy('county_code', 'city_id').coalesce(1))
         n = eligible.count()
         distinct = eligible.select('r_value', 'log_f', 'log_m').distinct().count()
         if min(n, distinct) < 3:
