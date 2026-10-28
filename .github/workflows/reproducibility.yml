@@ -21,8 +21,8 @@ jobs:
       FIRST_RUN: ${{ inputs.first_run }}
       SECOND_RUN: ${{ inputs.second_run }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.11'
       - name: Download evidence of both completed full runs
@@ -40,7 +40,7 @@ jobs:
           pip install -q playwright==1.51.0
           python -m playwright install --with-deps chromium > .runtime/browser-install.log 2>&1
           python scripts/capture_github.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: reproducibility-${{ github.run_id }}
