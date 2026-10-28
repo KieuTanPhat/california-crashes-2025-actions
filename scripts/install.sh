@@ -10,9 +10,12 @@ python -m venv .venv-airflow
 .venv-data/bin/python -m playwright install --with-deps chromium
 
 if [[ ! -d .runtime/hadoop ]]; then
-  curl --fail --location --retry 3 --output .runtime/hadoop.tar.gz \
+  # Prefer the official CDN; the archive can throttle large binary transfers.
+  curl --fail --location --retry 2 --connect-timeout 20 --max-time 600 --output .runtime/hadoop.tar.gz \
+    https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz || \
+  curl --fail --location --retry 2 --connect-timeout 20 --max-time 600 --output .runtime/hadoop.tar.gz \
     https://archive.apache.org/dist/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
-  curl --fail --location --retry 3 --output .runtime/hadoop.sha512 \
+  curl --fail --location --retry 3 --connect-timeout 20 --max-time 60 --output .runtime/hadoop.sha512 \
     https://archive.apache.org/dist/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz.sha512
   python - <<'PY'
 from pathlib import Path
