@@ -104,7 +104,7 @@ with sync_playwright() as p:
         page.locator(f'#step-{i}').screenshot(path=str(path))
         captures.append({'path': path.name, 'kind': 'Rendered actual stage output', 'step': i})
     for name, url, expected in [
-        ('hdfs-overview.png', 'http://127.0.0.1:9870/dfshealth.html#tab-overview', 'Overview'),
+        ('hdfs-overview.png', 'http://127.0.0.1:9870/dfshealth.html#tab-overview', 'Configured Capacity'),
         ('hdfs-files.png', 'http://127.0.0.1:9870/explorer.html#/california2025', 'raw'),
         ('spark-history.png', 'http://127.0.0.1:18080', 'CA2025')]:
         try:
