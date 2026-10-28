@@ -61,6 +61,8 @@ cat > "$HADOOP_CONF_DIR/hdfs-site.xml" <<EOF
 <property><name>dfs.datanode.http.address</name><value>127.0.0.1:9864</value></property>
 <property><name>dfs.datanode.address</name><value>127.0.0.1:9866</value></property>
 <property><name>dfs.datanode.ipc.address</name><value>127.0.0.1:9867</value></property>
+<property><name>dfs.datanode.hostname</name><value>127.0.0.1</value></property>
+<property><name>dfs.client.use.datanode.hostname</name><value>true</value></property>
 <property><name>dfs.permissions.enabled</name><value>false</value></property>
 <property><name>dfs.webhdfs.enabled</name><value>true</value></property>
 </configuration>

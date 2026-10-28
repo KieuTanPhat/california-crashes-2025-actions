@@ -1,0 +1,48 @@
+name: Verify two full runs
+on:
+  workflow_dispatch:
+    inputs:
+      first_run:
+        description: First successful full workflow run ID
+        required: true
+      second_run:
+        description: Second successful full workflow run ID
+        required: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      FIRST_RUN: ${{ inputs.first_run }}
+      SECOND_RUN: ${{ inputs.second_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download evidence of both completed full runs
+        run: |
+          [[ "$FIRST_RUN" =~ ^[0-9]+$ && "$SECOND_RUN" =~ ^[0-9]+$ && "$FIRST_RUN" != "$SECOND_RUN" ]]
+          mkdir -p .runtime/proof artifacts/proof
+          gh run view "$FIRST_RUN" --json conclusion,headSha,url > .runtime/proof/first-status.json
+          gh run view "$SECOND_RUN" --json conclusion,headSha,url > .runtime/proof/second-status.json
+          gh run download "$FIRST_RUN" --dir .runtime/proof/first
+          gh run download "$SECOND_RUN" --dir .runtime/proof/second
+      - name: Compare actual outputs and input provenance
+        run: python scripts/compare_runs.py
+      - name: Capture completed GitHub run pages
+        run: |
+          pip install -q playwright==1.51.0
+          python -m playwright install --with-deps chromium > .runtime/browser-install.log 2>&1
+          python scripts/capture_github.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reproducibility-${{ github.run_id }}
+          path: artifacts/proof/
+          retention-days: 14

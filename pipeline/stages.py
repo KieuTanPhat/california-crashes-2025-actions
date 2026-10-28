@@ -75,7 +75,7 @@ def prepare_hdfs():
     import requests
     for attempt in range(90):
         try:
-            r = requests.get('http://127.0.0.1:9870/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem', timeout=3)
+            r = requests.get('http://127.0.0.1:9870/jmx?qry=Hadoop:service=NameNode,name=FSNamesystemState', timeout=3)
             if r.ok and r.json()['beans'][0].get('NumLiveDataNodes', 0) >= 1:
                 break
         except (requests.RequestException, KeyError, IndexError):
