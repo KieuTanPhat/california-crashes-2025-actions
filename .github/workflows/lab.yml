@@ -10,9 +10,6 @@ on:
         default: smoke
 permissions:
   contents: read
-concurrency:
-  group: crash-lab-${{ github.ref }}
-  cancel-in-progress: false
 jobs:
   lab:
     runs-on: ubuntu-24.04
