@@ -62,6 +62,11 @@ jobs:
           tail -n 8 .runtime/logs/start.log
       - name: Execute all nine stages through Airflow
         run: .venv-data/bin/python scripts/run_dag.py
+      - name: Capture actual command-line terminal on the runner
+        run: |
+          sudo apt-get install -y -qq ttyd > .runtime/logs/ttyd-install.log 2>&1
+          ttyd --version > artifacts/manifest/ttyd-version.txt
+          .venv-data/bin/python scripts/capture_terminal.py
       - name: Capture authentic UIs and render report
         if: always()
         run: |

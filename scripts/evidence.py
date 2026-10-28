@@ -90,6 +90,8 @@ css = '''body{margin:0;background:#f1f4f9;color:#142440;font-family:Arial,sans-s
 row_label = f"{input_meta['selected_rows']:,}" if 'selected_rows' in input_meta else 'unavailable'
 intro = f'''<header><div class="eyebrow">CALIFORNIA CRASHES · 2025 · GITHUB ACTIONS</div><h1>Minh chứng thực thi pipeline 9 bước</h1><p>Chế độ: <b>{html.escape(mode)}</b> · Bản ghi batch: <b>{row_label}</b> · Airflow: <b>{html.escape(airflow_run.get('state', 'not completed'))}</b></p><p><a href="{html.escape(run_url)}">Mở lần chạy GitHub Actions</a></p><p class="note">Báo cáo này trình bày kết quả được tạo trong lần chạy thật. Ảnh giao diện HDFS, Spark History và Airflow được lưu riêng. M của RFM là số thương vong quan sát được, không phải tiền. Kafka phát lại dữ liệu lịch sử trong phạm vi hữu hạn.</p><p>Commit: {html.escape(manifest.get('commit','not yet verified'))}<br>SHA256 nguồn: {html.escape(input_meta.get('original_sha256','unavailable'))}</p></header>'''
 page_html = '<!doctype html><html lang="vi"><meta charset="utf-8"><title>California 2025 · Pipeline evidence</title><style>' + css + '</style><main>' + intro + ''.join(sections) + '<footer>Thiếu dữ liệu thương vong được giữ NULL. Số vụ không phải tỷ lệ rủi ro theo lưu lượng xe. Xem manifest và phương pháp trong repository.</footer></main></html>'
+if (EVIDENCE / 'terminal/index.html').exists():
+    page_html = page_html.replace('</header>', '<p><a href="terminal/index.html">Mở 10 ảnh terminal Bash thật: câu lệnh và đầu ra</a></p></header>', 1)
 (EVIDENCE / 'report.html').write_text(page_html, encoding='utf-8')
 
 captures = []
