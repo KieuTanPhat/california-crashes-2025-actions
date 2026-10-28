@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import socket
 import subprocess
 import time
 import requests
@@ -31,7 +32,13 @@ PROMPT_COMMAND='__lab_status=$?; printf "%s\\n" "$__lab_status" > "$LAB_EXIT_MAR
 ''')
 env = dict(os.environ, LAB_EXIT_MARKER=str(marker))
 help_result = subprocess.run(['ttyd', '--help'], capture_output=True, text=True)
-args = ['ttyd', '-i', '127.0.0.1', '-p', '7681', '-t', 'fontSize=18', '-t', 'scrollback=3000']
+# Runner images can already have a service on ttyd's conventional port.
+# Never attach to a pre-existing listener; choose an unused loopback port.
+with socket.socket() as reservation:
+    reservation.bind(('127.0.0.1', 0))
+    port = reservation.getsockname()[1]
+endpoint = f'http://127.0.0.1:{port}/'
+args = ['ttyd', '-i', '127.0.0.1', '-p', str(port), '-t', 'fontSize=18', '-t', 'scrollback=3000']
 args += ttyd_write_options(help_result.stdout, help_result.stderr)
 shell_command = shlex.join(['bash', '--rcfile', str(rcfile), '-i'])
 args += ['script', '-q', '-f', '-c', shell_command, str(OUT / 'session.typescript')]
@@ -77,8 +84,10 @@ plan = [
 results = []
 try:
     for attempt in range(60):
+        if server.poll() is not None:
+            raise RuntimeError('Our ttyd process exited before starting; see ttyd.log')
         try:
-            if requests.get('http://127.0.0.1:7681/', timeout=2).ok:
+            if requests.get(endpoint, timeout=2).ok:
                 break
         except requests.RequestException:
             pass
@@ -90,7 +99,7 @@ try:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
         page = browser.new_page(viewport={'width': 1800, 'height': 1350}, device_scale_factor=1)
-        page.goto('http://127.0.0.1:7681/', wait_until='domcontentloaded')
+        page.goto(endpoint, wait_until='domcontentloaded')
         page.locator('.xterm-helper-textarea').wait_for(state='attached', timeout=30000)
         deadline = time.monotonic() + 30
         while read_exit_status(marker) is None:
