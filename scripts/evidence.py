@@ -125,6 +125,18 @@ with sync_playwright() as p:
             page.goto(url, wait_until='domcontentloaded')
             page.get_by_text('california_crashes_2025', exact=False).first.wait_for(timeout=30000)
             page.wait_for_timeout(2500)
+            if view == 'graph':
+                page.locator('.react-flow__node').first.wait_for(timeout=30000)
+                # Prefer a readable vertical graph when the native UI offers it.
+                for select in page.locator('select').all():
+                    labels = select.locator('option').all_text_contents()
+                    vertical = next((label for label in labels if label.strip().startswith('Top') and 'Bottom' in label), None)
+                    if vertical:
+                        select.select_option(label=vertical)
+                        page.wait_for_timeout(1000)
+                        break
+                if page.locator('.react-flow__node').count() != 9:
+                    raise RuntimeError('Native Airflow graph does not show all nine task nodes')
             page.screenshot(path=str(EVIDENCE / f'airflow-{view}.png'), full_page=True)
             captures.append({'path': f'airflow-{view}.png', 'kind': 'Native live Airflow UI', 'url': url})
     except Exception as exc:
