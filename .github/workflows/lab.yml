@@ -33,11 +33,30 @@ jobs:
           java-version: '11'
       - name: Contract tests
         run: python -m unittest discover -s tests -v
+      - uses: actions/cache/restore@v4
+        id: runtime-cache
+        with:
+          path: |
+            .runtime/hadoop
+            .venv-data
+            .venv-airflow
+            /home/runner/.cache/ms-playwright
+          key: lab-ubuntu24-py311-${{ hashFiles('requirements-data.txt', 'scripts/install.sh') }}
       - name: Install pinned lab dependencies
+        id: install-deps
         run: |
           mkdir -p .runtime/logs
           bash scripts/install.sh > .runtime/logs/install.log 2>&1 || { tail -n 70 .runtime/logs/install.log; exit 1; }
           tail -n 8 .runtime/logs/install.log
+      - uses: actions/cache/save@v4
+        if: steps.runtime-cache.outputs.cache-hit != 'true' && steps.install-deps.outcome == 'success'
+        with:
+          path: |
+            .runtime/hadoop
+            .venv-data
+            .venv-airflow
+            /home/runner/.cache/ms-playwright
+          key: ${{ steps.runtime-cache.outputs.cache-primary-key }}
       - name: Fetch and verify the original CSV
         run: .venv-data/bin/python scripts/fetch_data.py
       - name: Start Kafka, Spark History and real Airflow scheduler
